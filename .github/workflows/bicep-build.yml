@@ -1,0 +1,27 @@
+name: Bicep build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  bicep-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Bicep
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/bicep" "https://github.com/Azure/bicep/releases/download/v0.47.16/bicep-linux-x64"
+          chmod +x "$RUNNER_TEMP/bicep"
+          sudo mv "$RUNNER_TEMP/bicep" /usr/local/bin/bicep
+          bicep --version
+
+      - name: Build container-app-service
+        run: bicep build modules/container-app-service/main.bicep --outfile "$RUNNER_TEMP/container-app-service.json"
