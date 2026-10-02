@@ -19,7 +19,7 @@ param containerImage string
 param ingress string
 
 var moduleName = 'container-app-service'
-var moduleVersion = 'unpublished'
+var moduleVersion = '0.1.0'
 var tags = {
   'aeroflow-module': '${moduleName}:${moduleVersion}'
 }

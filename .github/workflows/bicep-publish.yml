@@ -1,0 +1,58 @@
+name: Bicep publish
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish, without a leading v (for example 0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  bicep-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Bicep
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/bicep" "https://github.com/Azure/bicep/releases/download/v0.47.16/bicep-linux-x64"
+          chmod +x "$RUNNER_TEMP/bicep"
+          sudo mv "$RUNNER_TEMP/bicep" /usr/local/bin/bicep
+          bicep --version
+
+      - name: Resolve version
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            version="$INPUT_VERSION"
+          else
+            version="${REF_NAME#v}"
+          fi
+          if ! printf '%s' "$version" | grep -Eq '^[0-9A-Za-z][0-9A-Za-z._+-]*$'; then
+            echo "Version is empty or contains unsupported characters." >&2
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish container-app-service
+        env:
+          DOCKER_REGISTRY: ghcr.io
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          bicep publish modules/container-app-service/main.bicep \
+            --target "br:ghcr.io/aeroflow-air/container-app-service:${VERSION}"
