@@ -2,7 +2,11 @@
 
 Bicep module for one HTTP workload on Azure Container Apps. It is the first `br/platform` module. It is not published, and it is not pinned.
 
-ADR-0006 does not name a file path. This file is `modules/container-app-service/main.bicep` so the folder matches the module name `container-app-service`. A later publish could target `br/platform:container-app-service:<version>` from this file. Nothing has been published.
+ADR-0006 does not name a file path. This file is `modules/container-app-service/main.bicep` so the folder matches the module name `container-app-service`. Nothing has been published.
+
+## Registry
+
+The registry for now is GitHub Container Registry (`ghcr.io`), not Azure Container Registry. The pin form is `br:ghcr.io/aeroflow-air/container-app-service:<version>`. Publishing to `ghcr.io` needs the experimental Bicep feature `ociEnabled`, set in the repo `bicepconfig.json`. Azure Container Registry remains the later bootstrap.
 
 Capability-to-module mapping is still open (ADR-0009). This README does not decide it.
 
@@ -20,7 +24,7 @@ The workspace is the diagnostics sink the scaffold requires. The environment sen
 
 The app uses the built-in Consumption workload profile, single revision mode, and `minReplicas: 0`. No scale rule is set, so the platform's default HTTP scale rule applies. `maxReplicas` is not set. The ingress target port is 8080, the template port named in ADR-0007. Container size is 0.25 vCPU and 0.5 GiB, the bottom of the Consumption range. ADR-0007 does not set a size.
 
-Every resource is tagged `aeroflow-module` = `container-app-service:unpublished`. The version is the literal `unpublished` because the module is not published. ADR-0006 does not define a naming pattern, so names are derived from `name` only. Organisation, prefix and registry are not hard-coded (ADR-0007).
+Every resource is tagged `aeroflow-module` = `container-app-service:0.1.0`. That literal is the version in this file. The module is not in a registry yet, so it is not pinned. ADR-0006 does not define a naming pattern, so names are derived from `name` only. Organisation, prefix and registry are not hard-coded (ADR-0007).
 
 ## Parameters
 
@@ -42,4 +46,4 @@ There are no outputs.
 - No sealed `advanced` parameter. ADR-0006 describes one for thin modules. It is not in the scaffold list this module was built to, and the parameter list is the four above.
 - No Dapr, no custom scale rules, no Dedicated or Flexible workload profiles, no multiple-revision mode (ADR-0007).
 - No registry and no `AcrPull` role assignment.
-- No publish, no release tag, and no pin.
+- No version is in a registry, and there is no pin. Publish is `.github/workflows/bicep-publish.yml` (a `v*` tag, or `workflow_dispatch`), not part of this module.
