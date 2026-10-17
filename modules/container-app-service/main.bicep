@@ -84,3 +84,9 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
     }
   }
 }
+
+@description('Principal (object) id of the container app system-assigned managed identity. The workload generator uses it for role assignments (for example Service Bus Sender/Receiver, ADR-0019).')
+output principalId string = app.identity.principalId
+
+@description('Resource id of the container app.')
+output appId string = app.id

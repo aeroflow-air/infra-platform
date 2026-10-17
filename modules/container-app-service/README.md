@@ -37,7 +37,7 @@ Every resource is tagged `aeroflow-module` = `container-app-service:0.1.0`. That
 
 `name` is capped at 28 characters so `<name>-env` stays within 32 characters. The [Azure naming rules](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules) list `Microsoft.App/containerApps` as 2–32 characters. They do not list `managedEnvironments`.
 
-There are no outputs.
+Outputs: `principalId` (the system-assigned managed identity's principal id, used by the workload generator for role assignments such as Service Bus Sender/Receiver) and `appId`.
 
 ## What this module does not do
 
